@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart | Paddy Management</title>
+  <style>
+    body {
+      background-color: #f1f8e9;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+    }
+
+    header {
+      background-color: #2e7d32;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1em;
+      padding: 6px 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #1b5e20;
+    }
+
+    .cart-container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+
+    th {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .cart-total {
+      text-align: right;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    .cart-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .cart-actions button {
+      flex: 1;
+      padding: 12px;
+      font-size: 1em;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .continue-btn {
+      background-color: #aed581;
+      color: #1b5e20;
+    }
+
+    .continue-btn:hover {
+      background-color: #9ccc65;
+    }
+
+    .place-btn {
+      background-color: #2e7d32;
+      color: white;
+    }
+
+    .place-btn:hover {
+      background-color: #1b5e20;
+    }
+
+    .clear-btn {
+      background-color: #ef5350;
+      color: white;
+    }
+
+    .clear-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    .empty-cart {
+      text-align: center;
+      font-size: 1.1em;
+      color: #888;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Header -->
+  <header>
+    <h1>Paddy Management</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="order_success.html">Place Order</a></li>
+        <li id="authOption"></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ✅ Cart Content -->
+  <div class="cart-container" id="cartContainer"></div>
+
+  <script>
+    function showAuthOption() {
+      const user = JSON.parse(localStorage.getItem("loggedInUser"));
+      const authOption = document.getElementById("authOption");
+
+      if (authOption) {
+        authOption.innerHTML = user
+          ? `<a href="#" onclick="logout()">Logout</a>`
+          : `<a href="login.html">Login / Register</a>`;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      alert("You have been logged out.");
+      window.location.href = "login.html";
+    }
+
+    function showCart() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const container = document.getElementById("cartContainer");
+
+      if (cart.length === 0) {
+        container.innerHTML = `<div class="empty-cart">Your cart is empty.</div>`;
+        return;
+      }
+
+      let total = 0;
+      let rows = cart.map(item => {
+        const itemTotal = item.price * item.qty;
+        total += itemTotal;
+        return `
+          <tr>
+            <td>${item.productName}</td>
+            <td>${item.qty}</td>
+            <td>₹${item.price}</td>
+            <td>₹${itemTotal}</td>
+          </tr>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="cart-total">Grand Total: ₹${total}</div>
+        <div class="cart-actions">
+          <button class="continue-btn" onclick="window.location.href='products.html'">Continue Shopping</button>
+          <button class="place-btn" onclick="window.location.href='place-order.html'">Place Order</button>
+          <button class="clear-btn" onclick="clearCart()">Clear Cart</button>
+        </div>
+      `;
+    }
+
+    function clearCart() {
+      localStorage.removeItem("cart");
+      alert("Cart cleared.");
+      showCart();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      showAuthOption();
+      showCart();
+    });
+  </script>
+</body>
+</html>

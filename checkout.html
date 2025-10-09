@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | Paddy Management</title>
+  <style>
+    body {
+      background-color: #f1f8e9;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+    }
+
+    header {
+      background-color: #2e7d32;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1em;
+      padding: 6px 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #1b5e20;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .container h2 {
+      color: #2e7d32;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    form input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+
+    form button {
+      width: 100%;
+      padding: 14px;
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background-color: #1b5e20;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Header -->
+  <header>
+    <h1>Paddy Management</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="checkout.html">Checkout</a></li>
+        <li id="authOption"></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ✅ Checkout Form -->
+  <div class="container">
+    <h2>Checkout</h2>
+    <form id="checkoutForm">
+      <input type="text" name="fullName" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email Address" required />
+      <input type="text" name="address" placeholder="Shipping Address" required />
+      <input type="tel" name="phone" placeholder="Phone Number" required />
+      <button type="submit">Place Order</button>
+    </form>
+  </div>
+
+  <!-- ✅ Script -->
+  <script>
+    function checkCustomerAccess() {
+      const user = JSON.parse(localStorage.getItem("loggedInUser"));
+      if (!user) {
+        alert("Please log in to proceed to checkout.");
+        window.location.href = "login.html";
+        return false;
+      }
+      return true;
+    }
+
+    function handleCheckout(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const fullName = form.fullName.value.trim();
+      const email = form.email.value.trim();
+      const address = form.address.value.trim();
+      const phone = form.phone.value.trim();
+
+      if (!fullName || !email || !address || !phone) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      if (cart.length === 0) {
+        alert("Your cart is empty.");
+        window.location.href = "products.html";
+        return;
+      }
+
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      const user = JSON.parse(localStorage.getItem("loggedInUser"));
+
+      orders.push({
+        customer: user.username,
+        fullName,
+        email,
+        address,
+        phone,
+        items: cart,
+        placedAt: new Date().toISOString()
+      });
+
+      try {
+        localStorage.setItem("orders", JSON.stringify(orders));
+        localStorage.removeItem("cart");
+        
+        alert("Order placed successfully!");
+        // Change this to products.html since order-success.html might not exist
+        window.location.href = "products.html";
+      } catch (error) {
+        alert("There was an error placing your order. Please try again.");
+        console.error("Order placement error:", error);
+      }
+    }
+
+    function showAuthOption() {
+      const user = JSON.parse(localStorage.getItem("loggedInUser"));
+      const authOption = document.getElementById("authOption");
+
+      if (authOption) {
+        authOption.innerHTML = user
+          ? `<a href="#" onclick="logout()">Logout</a>`
+          : `<a href="login.html">Login</a>`;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      alert("You have been logged out.");
+      window.location.href = "login.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (checkCustomerAccess()) {
+        showAuthOption();
+        
+        // Pre-fill form with user data if available
+        const user = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (user) {
+          const form = document.getElementById("checkoutForm");
+          if (form) {
+            form.fullName.value = user.username || "";
+            form.email.value = user.email || "";
+          }
+        }
+
+        const form = document.getElementById("checkoutForm");
+        if (form) {
+          form.addEventListener("submit", handleCheckout);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

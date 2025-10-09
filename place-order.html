@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Place Order | Paddy Management</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f1f8e9;
+    }
+
+    header {
+      background-color: #2e7d32;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1em;
+      padding: 6px 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #1b5e20;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .container h2 {
+      color: #2e7d32;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    #cartItems p {
+      font-size: 1em;
+      margin: 8px 0;
+      color: #444;
+    }
+
+    #cartItems strong {
+      color: #2e7d32;
+    }
+
+    form label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+
+    form button {
+      margin-top: 30px;
+      width: 100%;
+      padding: 14px;
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background-color: #1b5e20;
+    }
+
+    .success-message {
+      display: none;
+      text-align: center;
+      color: #2e7d32;
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+
+    .success-message a {
+      display: inline-block;
+      margin-top: 20px;
+      background-color: #2e7d32;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .success-message a:hover {
+      background-color: #1b5e20;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Header -->
+  <header>
+    <h1>Paddy Management</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="place-order.html">Place Order</a></li>
+        <li><a href="about.html">About</a></li>
+        <li id="authOption"></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ✅ Order Form -->
+  <div class="container">
+    <h2>Place Your Order</h2>
+
+    <form id="orderForm">
+      <div id="cartItems"></div>
+
+      <label for="address">Delivery Address</label>
+      <textarea id="address" rows="4" required></textarea>
+
+      <button type="submit">Submit Order</button>
+    </form>
+
+    <div class="success-message" id="orderSuccess">
+      <h3>🎉 Order Placed Successfully!</h3>
+      <p>Thank you for shopping with Paddy Management.<br>Your order has been recorded and will be processed shortly.</p>
+      <a href="products.html">Continue Shopping</a>
+    </div>
+  </div>
+
+  <!-- ✅ Script -->
+  <script>
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    const authOption = document.getElementById("authOption");
+
+    if (authOption) {
+      if (user) {
+        authOption.innerHTML = `<a href="#" onclick="logout()">Logout</a>`;
+      } else {
+        authOption.innerHTML = `<a href="login.html">Login</a>`;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      alert("You have been logged out.");
+      window.location.href = "login.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cartItemsDiv = document.getElementById("cartItems");
+
+      if (cart.length === 0) {
+        cartItemsDiv.innerHTML = "<p>Your cart is empty.</p>";
+        document.getElementById("orderForm").style.display = "none";
+        return;
+      }
+
+      let total = 0;
+      cartItemsDiv.innerHTML = "<h3>Your Items:</h3>";
+      cart.forEach(item => {
+        const line = document.createElement("p");
+        line.textContent = `${item.productName} × ${item.qty} = ₹${item.price * item.qty}`;
+        cartItemsDiv.appendChild(line);
+        total += item.price * item.qty;
+      });
+
+      const totalLine = document.createElement("p");
+      totalLine.innerHTML = `<strong>Total: ₹${total}</strong>`;
+      cartItemsDiv.appendChild(totalLine);
+    });
+
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      if (!user || user.role !== "customer") {
+        alert("Only customers can place orders.");
+        return;
+      }
+
+      const address = document.getElementById("address").value.trim();
+      if (!address) {
+        alert("Please enter your delivery address.");
+        return;
+      }
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+      orders.push({
+        customer: user.username,
+        address,
+        items: cart,
+        placedAt: new Date().toISOString()
+      });
+
+      localStorage.setItem("orders", JSON.stringify(orders));
+      localStorage.removeItem("cart");
+
+      document.getElementById("orderForm").style.display = "none";
+      document.getElementById("orderSuccess").style.display = "block";
+    });
+  </script>
+
+</body>
+ <script src="script/cart.js"></script>
+</html>

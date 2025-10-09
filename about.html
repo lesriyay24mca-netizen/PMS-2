@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us | Paddy Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2e7d32;
+      padding: 15px 40px;
+      color: white;
+    }
+
+    .logo {
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .about-section {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .about-section h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #1b5e20;
+    }
+
+    .about-section p {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      color: #4e342e;
+    }
+
+    .owner-contact {
+      background-color: #c8e6c9;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+
+    .owner-contact h2 {
+      margin-bottom: 10px;
+      color: #2e7d32;
+    }
+
+    .owner-contact p {
+      margin: 6px 0;
+      font-size: 1em;
+      color: #3e3e3e;
+    }
+
+    .rice-grid {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .rice-grid img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      margin: 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #eee;
+      font-size: 0.9em;
+      color: #333;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="logo">🌾 Paddy Management</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="products.html">Our Products</a></li>
+        <li><a href="login.html">Login/Register</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <section class="about-section">
+    <h1>About Us</h1>
+    <p>
+      Paddy Management System is a web-based platform designed to streamline the sale and distribution of rice and paddy. Unlike traditional systems where farmers manage listings, this system empowers an admin to oversee inventory, pricing, and product management — ensuring consistency, accountability, and ease of access for buyers.
+    </p>
+    <p>
+      The platform connects customers directly to a trusted source, eliminating middlemen and offering high-quality rice and paddy at fair prices. Customers can log in, browse products, place orders, and submit feedback, while the admin manages stock, updates listings, and monitors sales performance.
+    </p>
+
+    <div class="owner-contact">
+      <h2>Owner Contact Details</h2>
+      <p><strong>Name:</strong> Lesriya</p>
+      <p><strong>Phone:</strong> +91-9876543210</p>
+      <p><strong>Email:</strong> lesriya@example.com</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Paddy Management. All rights reserved.</p>
+  </footer>
+
+<script>
+// Auth functionality
+let currentUser = null;
+
+function showAuthOption() {
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  const authOption = document.getElementById("authOption");
+  
+  if (authOption) {
+    authOption.innerHTML = user
+      ? `<a href="#" onclick="logout()">Logout</a>`
+      : `<a href="login.html">Login / Register</a>`;
+  }
+  
+  currentUser = user;
+}
+
+function logout(e) {
+  if (e) e.preventDefault();
+  localStorage.removeItem("loggedInUser");
+  alert("You have been logged out.");
+  window.location.href = "login.html";
+}
+
+// Check for already logged in user and update UI
+document.addEventListener("DOMContentLoaded", function() {
+  showAuthOption();
+  
+  // Handle logout click
+  const logoutLinks = document.querySelectorAll('a[onclick="logout()"]');
+  logoutLinks.forEach(link => {
+    link.addEventListener('click', logout);
+  });
+
+  // Add active state to current nav item
+  const currentPage = window.location.pathname.split('/').pop();
+  const navLinks = document.querySelectorAll('nav a');
+  navLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPage) {
+      link.style.textDecoration = 'underline';
+    }
+  });
+});
+</script>
+</body>
+</html>
