@@ -53,44 +53,28 @@ function loginUser(event) {
   window.location.href = "products.html";
 }
 
-  // Redirect based on role
-  if (user.role === "admin") {
-    window.location.href = "admin.html";
-  } else {
-    window.location.href = "products.html";
-  }
-
-
 // ✅ Register function with full validation
 function registerUser(event) {
   if (event) event.preventDefault();
-  
-  const username = document.getElementById("username")?.value?.trim();
-  const email = document.getElementById("email")?.value?.trim();
-  const password = document.getElementById("password")?.value?.trim();
-  const confirmPassword = document.getElementById("confirmPassword")?.value?.trim();
+
+  const username = document.getElementById("username").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
   if (!username || !email || !password || !confirmPassword) {
     alert("Please fill in all fields.");
     return;
   }
 
-  // Validate username length
   if (username.length < 3) {
     alert("Username must be at least 3 characters long.");
     return;
   }
 
-  // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     alert("Please enter a valid email address.");
-    return;
-  }
-
-  // Validate password strength
-  if (password.length < 6) {
-    alert("Password must be at least 6 characters long.");
     return;
   }
 
@@ -99,18 +83,18 @@ function registerUser(event) {
     return;
   }
 
-  // Check if user exists
   const users = JSON.parse(localStorage.getItem("users")) || [];
+
   if (users.some(user => user.username === username)) {
     alert("Username already exists. Please choose another.");
     return;
   }
+
   if (users.some(user => user.email === email)) {
     alert("Email already registered. Please use another email or login.");
     return;
   }
 
-  // Create new user with customer role
   const newUser = {
     username,
     email,
@@ -128,85 +112,22 @@ function registerUser(event) {
   window.location.href = "login.html";
 }
 
-// Admin Management
-function getAdminKey() {
-  let key = localStorage.getItem("adminSecretKey");
-  if (!key) {
-    // Generate a random 16-character key if none exists
-    key = Array.from(crypto.getRandomValues(new Uint8Array(12)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-    localStorage.setItem("adminSecretKey", key);
-    alert(`Your admin secret key is: ${key}\nPlease save this key securely. You will need it to create an admin account.`);
-  }
-  return key;
-}
-
-function showAdminCreate() {
-  const adminForm = document.getElementById("adminForm");
-  if (adminForm) {
-    adminForm.style.display = adminForm.style.display === "none" ? "block" : "none";
-    if (adminForm.style.display === "block") {
-      getAdminKey(); // Ensure the key exists when showing the form
-    }
-  }
-}
-
-
-  const users = JSON.parse(localStorage.getItem("users")) || [];
-  
-  // Check if admin already exists
-  if (users.some(user => user.role === "admin")) {
-    alert("An admin account already exists!");
-    return;
-  }
-
-  // Check if username is taken
-  if (users.some(user => user.username === username)) {
-    alert("Username already exists!");
-    return;
-  }
-
-  // Create admin account
-  users.push({
-    username,
-    password,
-    role: "admin",
-    email: "",
-    dateCreated: new Date().toISOString()
-  });
-
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("Admin account created successfully!");
-  window.location.href = "login.html";
-
 // ✅ Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
   showAuthOption();
 
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
-  const createAdminForm = document.getElementById("createAdminForm");
 
   if (loginForm) {
-    loginForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      loginUser();
-    });
+    loginForm.addEventListener("submit", loginUser);
   }
 
   if (registerForm) {
-    registerForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      registerUser();
-    });
+    registerForm.addEventListener("submit", registerUser);
   }
 
-  if (createAdminForm) {
-    createAdminForm.addEventListener("submit", createAdmin);
-  }
-
-  // Check if admin exists and hide admin creation if one does
+  // ✅ Hide admin creation if admin already exists
   const users = JSON.parse(localStorage.getItem("users")) || [];
   if (users.some(user => user.role === "admin")) {
     const adminSection = document.querySelector(".admin-section");
@@ -214,10 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
       adminSection.style.display = "none";
     }
   }
-});
 
-// ✅ About page contact logic
-document.addEventListener("DOMContentLoaded", () => {
+  // ✅ About page contact logic
   const contactBox = document.getElementById("ownerContact");
   if (contactBox) {
     contactBox.innerHTML = `
@@ -228,5 +147,3 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 });
-
-// This duplicate function has been removed as it was causing confusion
